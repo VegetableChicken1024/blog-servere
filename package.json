@@ -1,16 +1,18 @@
 {
   "name": "blog-server-midway",
-  "version": "1.0.0",
+  "version": "20230314_1.0.0",
   "description": "",
   "private": true,
   "dependencies": {
     "@midwayjs/bootstrap": "^3.0.0",
     "@midwayjs/core": "^3.0.0",
     "@midwayjs/decorator": "^3.0.0",
+    "@midwayjs/swagger": "3",
     "@midwayjs/typeorm": "3",
     "@midwayjs/web": "^3.0.0",
     "egg": "^2.0.0",
     "mysql2": "^3.2.0",
+    "swagger-ui-dist": "^4.18.1",
     "typeorm": "^0.3.12"
   },
   "devDependencies": {
