@@ -20,7 +20,7 @@ export default (appInfo: MidwayAppInfo) => {
           synchronize: true,
           logging: false,
           // 配置实体目录
-          entities: ['src/entity/**/*.ts'],
+          entities: ['entity'],
         },
       },
     },
