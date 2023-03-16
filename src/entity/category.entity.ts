@@ -12,15 +12,23 @@ export class Category {
   @PrimaryGeneratedColumn() // 自增主键
   id: number;
 
-  @Column()
-  category_name: string;
+  @Column({
+    type: 'varchar',
+    length: 50,
+    nullable: false,
+    name: 'category_name',
+  })
+  categoryName: string;
 
-  @CreateDateColumn()
-  create_time: Date;
+  @Column({ type: 'tinyint', default: 1, name: 'is_enable' })
+  isEnable: boolean;
 
-  @UpdateDateColumn()
-  update_time: Date;
+  @CreateDateColumn({ name: 'create_time' })
+  createTime: Date;
 
-  @DeleteDateColumn()
-  delete_time: Date;
+  @UpdateDateColumn({ name: 'update_time' })
+  updateTime: Date;
+
+  @DeleteDateColumn({ name: 'delete_time' })
+  deleteTime: Date;
 }
