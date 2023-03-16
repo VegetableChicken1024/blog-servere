@@ -15,10 +15,13 @@ export class CategoryService {
   categoryModel: Repository<Category>;
 
   async getList(params: IGetCategory) {
+    const { page, pageSize, isEnable } = params;
+    // 分页参数
+    const paginationOptions =
+      page && pageSize ? { skip: (page - 1) * pageSize, take: pageSize } : {};
     const [records, total] = await this.categoryModel.findAndCount({
-      where: { isEnable: params.isEnable },
-      skip: (params.page - 1) * params.pageSize,
-      take: params.pageSize,
+      where: { isEnable },
+      ...paginationOptions,
     });
     return { records, total };
   }
