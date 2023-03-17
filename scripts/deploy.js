@@ -36,29 +36,75 @@ const zipSrc = version => {
 
 const questions = [
   {
+    type: 'confirm',
+    name: 'useDefaultConfig',
+    message: '是否使用默认配置',
+    default: true,
+  },
+  {
+    type: 'confirm',
+    name: 'useExistConfig',
+    message: '是否使用已有配置',
+    default: true,
+    when: answers => {
+      // 当不使用默认配置时才会出现
+      // 并且当configs/deploy文件夹下有配置文件时才会出现
+      const deployConfigPath = path.resolve(__dirname, '../configs/deploy');
+      const files = fs.readdirSync(deployConfigPath);
+      return !answers.useDefaultConfig && files.length > 0;
+    },
+  },
+  {
+    type: 'list',
+    name: 'config',
+    message: '请选择配置',
+    choices: () => {
+      const deployConfigPath = path.resolve(__dirname, '../configs/deploy');
+      const files = fs
+        .readdirSync(deployConfigPath)
+        .filter(item => item.endsWith('.yaml'))
+        .map(item => item.replace('.yaml', ''));
+      return files;
+    },
+    when: answers => !answers.useDefaultConfig && answers.useExistConfig,
+  },
+  {
     type: 'input',
     name: 'host',
     message: '请输入服务器地址',
-    when: !sshConfig.host,
+    when: answer =>
+      !sshConfig.host || (!answer.useDefaultConfig && !answer.useExistConfig),
   },
   {
     type: 'input',
     name: 'username',
     message: '请输入服务器用户名',
-    when: !sshConfig.username,
+    when: answer =>
+      !sshConfig.username ||
+      (!answer.useDefaultConfig && !answer.useExistConfig),
   },
   {
     type: 'password',
     name: 'password',
     message: '请输入服务器密码',
-    when: !sshConfig.password,
+    when: answer =>
+      !sshConfig.password ||
+      (!answer.useDefaultConfig && !answer.useExistConfig),
     mask: '*',
   },
   {
     type: 'input',
     name: 'path',
     message: '请输入服务器部署路径',
-    when: !sshConfig.path,
+    when: answer =>
+      !sshConfig.path || (!answer.useDefaultConfig && !answer.useExistConfig),
+  },
+  {
+    type: 'confirm',
+    name: 'saveConfig',
+    message: '是否保存配置',
+    default: true,
+    when: answers => !answers.useDefaultConfig && !answers.useExistConfig,
   },
   {
     type: 'confirm',
@@ -111,13 +157,32 @@ const questions = [
 ];
 const configKeys = ['host', 'username', 'password', 'path'];
 inquirer.prompt(questions).then(async answers => {
-  configKeys.forEach(key => {
-    if (answers[key]) {
-      sshConfig[key] = answers[key];
+  if (answers.useDefaultConfig) {
+    configKeys.forEach(key => {
+      if (answers[key]) {
+        sshConfig[key] = answers[key];
+      }
+      // 将sshConfig写入ssh.yaml 方便下次使用
+      fs.writeFileSync(sshConfigPath, yaml.stringify(sshConfig));
+    });
+  } else {
+    // 不使用默认配置且保存配置
+    if (!answers.useExistConfig && answers.saveConfig) {
+      // 将配置写入configs/deploy文件夹下
+      const deployConfigPath = path.resolve(__dirname, '../configs/deploy');
+      const filePath = path.resolve(deployConfigPath, `${answers.host}.yaml`);
+      fs.writeFileSync(
+        filePath,
+        yaml.stringify({
+          host: answers.host,
+          username: answers.username,
+          password: answers.password,
+          path: answers.path,
+          port: 22,
+        })
+      );
     }
-    // 将sshConfig写入ssh.yaml 方便下次使用
-    fs.writeFileSync(sshConfigPath, yaml.stringify(sshConfig));
-  });
+  }
   const ssh = new NodeSSH();
   await ssh.connect(sshConfig);
   if (answers.rollback) {
@@ -137,29 +202,34 @@ inquirer.prompt(questions).then(async answers => {
     console.log('回滚成功');
     return;
   }
-  console.log('开始部署');
-  console.log('正在打包,请稍等...');
-  children('npm run build');
-  console.log('打包完成');
-  console.log('正在压缩,请稍等...');
-  await zipSrc(answers.version);
-  console.log('压缩完成');
-  console.log('正在上传,请稍等...');
-  await ssh.putFile(
-    path.resolve(__dirname, `../deployPackage/${answers.version}.zip`),
-    `${sshConfig.path}/${answers.version}.zip`
-  );
-  console.log('上传成功');
-  console.log('正在解压,请稍等...');
-  // 解压上传的zip
-  await ssh.execCommand(
-    `unzip -o ${sshConfig.path}/${answers.version}.zip -d ${sshConfig.path}`
-  );
-  console.log('解压完成');
-  console.log('正在重启服务,请稍等...');
-  // 运行scripts\run.sh
-  await ssh.execCommand(`bash ${sshConfig.path}/scripts/run.sh`);
-  ssh.dispose();
-  console.log('重启成功');
-  console.log('部署完成');
+  if (answers.newVersion) {
+    console.log('开始部署');
+    console.log('正在打包,请稍等...');
+    children('npm run build');
+    console.log('打包完成');
+    console.log('正在压缩,请稍等...');
+    await zipSrc(answers.version);
+    console.log('压缩完成');
+    console.log('正在上传,请稍等...');
+    await ssh.putFile(
+      path.resolve(__dirname, `../deployPackage/${answers.version}.zip`),
+      `${sshConfig.path}/${answers.version}.zip`
+    );
+    console.log('上传成功');
+    console.log('正在解压,请稍等...');
+    // 解压上传的zip
+    await ssh.execCommand(
+      `unzip -o ${sshConfig.path}/${answers.version}.zip -d ${sshConfig.path}`
+    );
+    console.log('解压完成');
+    console.log('正在重启服务,请稍等...');
+    // 运行scripts\run.sh
+    await ssh.execCommand(`bash ${sshConfig.path}/scripts/run.sh`);
+    ssh.dispose();
+    console.log('重启成功');
+    console.log('部署完成');
+  } else {
+    ssh.dispose();
+    console.log('取消部署');
+  }
 });

@@ -62,7 +62,7 @@
     "build": "midway-bin build -c",
     "prepare": "husky install && node scripts/init.js",
     "commit": "git-cz",
-    "deploy": "npm run build && node scripts/deploy.js"
+    "deploy": "node scripts/deploy.js"
   },
   "midway-bin-clean": [
     ".vscode/.tsbuildinfo",

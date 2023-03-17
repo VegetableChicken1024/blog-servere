@@ -25,3 +25,8 @@ username: ''
 password: ''
 path: ''`
   );
+
+// 新建deploy文件夹
+const deployConfigPath = path.resolve(configPath, 'deploy');
+const isExistDeployDir = fs.existsSync(deployConfigPath);
+if (!isExistDeployDir) fs.mkdirSync(deployConfigPath);
