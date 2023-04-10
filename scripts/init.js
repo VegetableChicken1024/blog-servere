@@ -13,7 +13,10 @@ const isExistDbYaml = fs.existsSync(path.resolve(configPath, 'db.yaml'));
 port: 3306
 username: ''
 password: ''
-database: ''`
+database: 
+  local: ''
+  production: ''
+  test: ''`
   );
 const isExistSSHYaml = fs.existsSync(path.resolve(configPath, 'ssh.yaml'));
 !isExistSSHYaml &&

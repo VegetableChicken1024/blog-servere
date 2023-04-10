@@ -1,6 +1,7 @@
 import { MidwayConfig, MidwayAppInfo } from '@midwayjs/core';
 import { getConfig } from '../utils';
 import { readFileSync } from 'fs';
+import { Category } from '../entity/category.entity';
 // 获取package.json
 const pkg = JSON.parse(readFileSync('package.json', 'utf-8'));
 export default (appInfo: MidwayAppInfo) => {
@@ -16,11 +17,12 @@ export default (appInfo: MidwayAppInfo) => {
         default: {
           // 单数据库实例
           ...dbConfig,
+          database: dbConfig.database[process.env.NODE_ENV],
           type: 'mysql',
           synchronize: true,
           logging: false,
           // 配置实体目录
-          entities: ['entity'],
+          entities: [Category],
         },
       },
     },
