@@ -40,6 +40,19 @@ export default {
         },
         tablePrefix: 'role',
       },
+      category: {
+        dialectType: 'mysql',
+        sync: true,
+        instance: {
+          // 包含 query 的mysql连接实例
+          query: (...args: any) => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            return connection.promise().query(...args);
+          },
+        },
+        tablePrefix: 'category',
+      },
     },
   },
 } as MidwayConfig & DefaultConfig;

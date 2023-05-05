@@ -11,6 +11,6 @@ export default class CategoryClientController {
 
   @Get('/list', { summary: '获取分类列表' })
   async list() {
-    return await this.categoryService.getList({ isEnable: true });
+    return await this.categoryService.getList();
   }
 }

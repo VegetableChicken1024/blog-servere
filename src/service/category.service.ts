@@ -1,55 +1,49 @@
-import { Provide } from '@midwayjs/core';
-import { InjectEntityModel } from '@midwayjs/typeorm';
-import { Repository } from 'typeorm';
+import { Inject, InjectClient, Provide } from '@midwayjs/decorator';
+import { TagClient, TagServiceFactory } from '@midwayjs/tags';
 import {
   IAddCategory,
   IDeleteCategory,
   IGetCategory,
   IUpdateCategory,
 } from '../dto/category.dto';
-import { Category } from '../entity/category.entity';
 
 @Provide()
 export class CategoryService {
-  @InjectEntityModel(Category)
-  categoryModel: Repository<Category>;
+  @Inject()
+  tags: TagServiceFactory;
 
-  async getList(params: IGetCategory) {
-    const { page, pageSize, isEnable } = params;
-    // 分页参数
-    const paginationOptions =
-      page && pageSize ? { skip: (page - 1) * pageSize, take: pageSize } : {};
-    const [records, total] = await this.categoryModel.findAndCount({
-      where: { isEnable },
-      ...paginationOptions,
+  @InjectClient(TagServiceFactory, 'category')
+  tagClient: TagClient;
+
+  async getList(params?: IGetCategory) {
+    const tagClient: TagClient = this.tags.get('category');
+    const { page, pageSize } = params || {};
+    const { list: records, total } = await tagClient.list({
+      page,
+      pageSize,
+      count: true,
     });
     return { records, total };
   }
 
   async add(params: IAddCategory) {
-    const category = new Category();
-    category.categoryName = params.categoryName;
-    category.isEnable = params.isEnable;
-    return await this.categoryModel.save(category);
+    const tagClient: TagClient = this.tags.get('category');
+    await tagClient.new(params);
+    return null;
   }
 
   async update(params: IUpdateCategory) {
-    const category = await this.categoryModel.findOne({
-      where: { id: params.id },
+    const tagClient: TagClient = this.tags.get('category');
+    await tagClient.update(params.id, {
+      name: params.name,
+      desc: params.desc,
     });
-    if (params.categoryName) {
-      category.categoryName = params.categoryName;
-    }
-    if (params.isEnable) {
-      category.isEnable = params.isEnable;
-    }
-    return await this.categoryModel.save(category);
+    return null;
   }
 
   async delete(params: IDeleteCategory) {
-    const category = await this.categoryModel.findOne({
-      where: { id: params.id },
-    });
-    return await this.categoryModel.softRemove(category);
+    const tagClient: TagClient = this.tags.get('category');
+    await tagClient.remove(params.id);
+    return null;
   }
 }
