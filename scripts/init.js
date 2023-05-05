@@ -13,7 +13,7 @@ const isExistDbYaml = fs.existsSync(path.resolve(configPath, 'db.yaml'));
 port: 3306
 username: ''
 password: ''
-database: 
+database:
   local: ''
   production: ''
   test: ''`
@@ -28,7 +28,17 @@ username: ''
 password: ''
 path: ''`
   );
-
+const isExistEmailYaml = fs.existsSync(path.resolve(configPath, 'email.yaml'));
+!isExistEmailYaml &&
+  fs.writeFileSync(
+    path.resolve(configPath, 'email.yaml'),
+    `host: ''
+port: 465
+secure: true
+auth:
+  user: ''
+  pass: ''`
+  );
 // 新建deploy文件夹
 const deployConfigPath = path.resolve(configPath, 'deploy');
 const isExistDeployDir = fs.existsSync(deployConfigPath);
