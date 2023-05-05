@@ -1,7 +1,16 @@
 import { MidwayConfig } from '@midwayjs/core';
 import { EggAppConfig, PowerPartial } from 'egg';
-
+import { createConnection } from 'mysql2';
+import { getConfig } from '../utils';
 export type DefaultConfig = PowerPartial<EggAppConfig>;
+const dbConfig = getConfig('db'); // 获取数据库配置
+const connection = createConnection({
+  host: dbConfig.host,
+  user: dbConfig.username,
+  password: dbConfig.password,
+  database: dbConfig.database[process.env.NODE_ENV],
+  charset: 'utf8mb4',
+});
 
 /**
  * 这里加入这段是因为 egg 默认的安全策略，在 post 请求的时候如果不传递 token 会返回 403
@@ -15,5 +24,22 @@ export default {
   },
   codeDye: {
     matchQueryKey: 'codeDye',
+  },
+  tags: {
+    clients: {
+      role: {
+        dialectType: 'mysql',
+        sync: true,
+        instance: {
+          // 包含 query 的mysql连接实例
+          query: (...args: any) => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            return connection.promise().query(...args);
+          },
+        },
+        tablePrefix: 'role',
+      },
+    },
   },
 } as MidwayConfig & DefaultConfig;

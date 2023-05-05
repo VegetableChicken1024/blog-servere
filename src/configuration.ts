@@ -1,6 +1,7 @@
 import * as codeDye from '@midwayjs/code-dye'; // 引入代码着色插件
 import { App, Configuration, ILifeCycle } from '@midwayjs/core';
 import * as swagger from '@midwayjs/swagger'; // 引入swagger插件
+import * as tags from '@midwayjs/tags'; // 引入tags插件
 import * as orm from '@midwayjs/typeorm'; // 引入typeorm插件
 import * as egg from '@midwayjs/web';
 import { Application } from 'egg';
@@ -13,6 +14,7 @@ import { FormatMiddleware } from './middleware/format.middleware'; // 引入自�
     egg,
     orm,
     swagger,
+    tags,
     {
       component: codeDye,
       enabledEnvironment: ['local'],
