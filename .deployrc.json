@@ -1,0 +1,9 @@
+{
+  "configPaths": ["./configs/ssh.yaml"],
+  "remotePath": "/home/blog-server",
+  "buildPath": ["./dist/", "./package.json", "./bootstrap.js"],
+  "remoteBakPath": "/home/bak/blog-server",
+  "zipPrefix": "blog-server",
+  "remoteCommands": ["sh /home/blog-server/scripts/run.sh"],
+  "buildCommand": "npm run build"
+}

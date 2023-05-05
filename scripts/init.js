@@ -25,8 +25,7 @@ const isExistSSHYaml = fs.existsSync(path.resolve(configPath, 'ssh.yaml'));
     `host: ''
 port: 22
 username: ''
-password: ''
-path: ''`
+password: ''`
   );
 const isExistEmailYaml = fs.existsSync(path.resolve(configPath, 'email.yaml'));
 !isExistEmailYaml &&

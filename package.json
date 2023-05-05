@@ -20,6 +20,7 @@
     "yaml": "^2.2.1"
   },
   "devDependencies": {
+    "@bh_huang/auto-deploy": "^0.1.0",
     "@commitlint/cli": "^17.4.4",
     "@commitlint/cz-commitlint": "^17.4.4",
     "@midwayjs/cli": "^2.0.0",
@@ -66,7 +67,7 @@
     "build": "midway-bin build -c",
     "prepare": "husky install && node scripts/init.js",
     "commit": "git-cz",
-    "deploy": "node scripts/deploy.js"
+    "deploy": "huangbh-deploy"
   },
   "midway-bin-clean": [
     ".vscode/.tsbuildinfo",
